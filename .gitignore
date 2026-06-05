@@ -1,0 +1,39 @@
+# Frontend
+Frontend/node_modules/
+Frontend/dist/
+frontend/.vite/
+
+# Backend
+Backend/target/
+Backend/build/
+
+# Env files
+.env
+.env.*
+
+# IDE
+.idea/
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cache
+.cache/
+.parcel-cache/
+.eslintcache
+
+# TypeScript
+*.tsbuildinfo
+# ESLint cache
+.eslintcache
+
+# Lock files (optional)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
