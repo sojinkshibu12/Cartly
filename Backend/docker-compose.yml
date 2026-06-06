@@ -1,11 +1,11 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: youtube-clone-postgres
+    container_name: fullstack-db
     environment:
-      POSTGRES_DB: youtube_clone
-      POSTGRES_USER: youtube_user
-      POSTGRES_PASSWORD: youtube_password
+      POSTGRES_DB: Cartly
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
     ports:
       - "5433:5432"
     volumes:
