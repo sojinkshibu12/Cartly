@@ -14,10 +14,11 @@ spring:
               uri: lb://AUTHSERVICE
               predicates:
                 - Path=/api/users/**
-            - id: authservice-auth
-              uri: lb://AUTHSERVICE
+            - id: productservice
+              uri: lb://PRODUCTSERVICE
               predicates:
-                - Path=/api/auth/**
+                - Path=/api/products/**
+
 
 server:
   port: 8081

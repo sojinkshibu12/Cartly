@@ -18,7 +18,7 @@ services:
 
   minio:
     image: quay.io/minio/minio
-    container_name: youtube-clone-minio
+    container_name: cartly
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: minioadmin
@@ -31,7 +31,7 @@ services:
 
   minio-setup:
     image: quay.io/minio/mc
-    container_name: youtube-clone-minio-setup
+    container_name: cartlyminio
     depends_on:
       - minio
     entrypoint: >
@@ -39,8 +39,8 @@ services:
       until mc alias set local http://minio:9000 minioadmin minioadmin; do
         sleep 2;
       done;
-      mc mb -p local/youtube-videos || true;
-      mc anonymous set download local/youtube-videos || true;
+      mc mb -p local/cartlyminio|| true;
+      mc anonymous set download local/cartlyminio|| true;
       cat <<'EOF' > /tmp/cors.json
       [
         {
@@ -52,7 +52,7 @@ services:
         }
       ]
       EOF
-      mc cors set local/youtube-videos /tmp/cors.json;
+      mc cors set local/cartlyminio /tmp/cors.json;
       "
 
 volumes:

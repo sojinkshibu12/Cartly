@@ -20,7 +20,7 @@ import { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const initialFormData = {
-  image: null,
+
   title: "",
   description: "",
   category: "",
@@ -28,7 +28,7 @@ const initialFormData = {
   price: "",
   salePrice: "",
   totalStock: "",
-  averageReview: 0,
+  
 };
 
 function AdminProducts() {
@@ -44,43 +44,47 @@ function AdminProducts() {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
-  function onSubmit(event) {
-    event.preventDefault();
+ function onSubmit(event) {
+  event.preventDefault();
 
-    currentEditedId !== null
-      ? dispatch(
-          editProduct({
-            id: currentEditedId,
-            formData,
-          })
-        ).then((data) => {
-          console.log(data, "edit");
+  console.log("FORM DATA", formData);
+  console.log("IMAGE URL", uploadedImageUrl);
 
-          if (data?.payload?.success) {
-            dispatch(fetchAllProducts());
-            setFormData(initialFormData);
-            setOpenCreateProductsDialog(false);
-            setCurrentEditedId(null);
-          }
-        })
-      : dispatch(
-          addNewProduct({
-            ...formData,
-            image: uploadedImageUrl,
-          })
-        ).then((data) => {
-          if (data?.payload?.success) {
-            dispatch(fetchAllProducts());
-            setOpenCreateProductsDialog(false);
-            setImageFile(null);
-            setFormData(initialFormData);
-            toast({
-              title: "Product add successfully",
-            });
-          }
+  const productData = {
+    ...formData,
+    image: uploadedImageUrl,
+  };
+
+  if (currentEditedId !== null) {
+    dispatch(
+      editProduct({
+        id: currentEditedId,
+        formData: productData,
+      })
+    ).then((data) => {
+      if (data?.payload) {
+        dispatch(fetchAllProducts());
+        setFormData(initialFormData);
+        setOpenCreateProductsDialog(false);
+        setCurrentEditedId(null);
+      }
+    });
+  } else {
+    dispatch(addNewProduct(productData)).then((data) => {
+      if (data?.payload) {
+        dispatch(fetchAllProducts());
+        setOpenCreateProductsDialog(false);
+        setImageFile(null);
+        setUploadedImageUrl("");
+        setFormData(initialFormData);
+
+        toast({
+          title: "Product added successfully",
         });
+      }
+    });
   }
-
+}
   function handleDelete(getCurrentProductId) {
     dispatch(deleteProduct(getCurrentProductId)).then((data) => {
       if (data?.payload?.success) {
@@ -88,13 +92,13 @@ function AdminProducts() {
       }
     });
   }
+function isFormValid() {
+  const fieldsValid = Object.keys(formData)
+    .filter((key) => key !== "averageReview")
+    .every((key) => formData[key] !== "");
 
-  function isFormValid() {
-    return Object.keys(formData)
-      .filter((currentKey) => currentKey !== "averageReview")
-      .map((key) => formData[key] !== "")
-      .every((item) => item);
-  }
+  return fieldsValid && uploadedImageUrl !== "";
+}
 
   useEffect(() => {
     dispatch(fetchAllProducts());
@@ -110,17 +114,18 @@ function AdminProducts() {
         </Button>
       </div>
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
-        {productList && productList.length > 0
-          ? productList.map((productItem) => (
-              <AdminProductTile
-                setFormData={setFormData}
-                setOpenCreateProductsDialog={setOpenCreateProductsDialog}
-                setCurrentEditedId={setCurrentEditedId}
-                product={productItem}
-                handleDelete={handleDelete}
-              />
-            ))
-          : null}
+{productList && productList.length > 0
+  ? productList.map((productItem) => (
+      <AdminProductTile
+        key={productItem.id}
+        setFormData={setFormData}
+        setOpenCreateProductsDialog={setOpenCreateProductsDialog}
+        setCurrentEditedId={setCurrentEditedId}
+        product={productItem}
+        handleDelete={handleDelete}
+      />
+    ))
+  : null}
       </div>
       <Sheet
         open={openCreateProductsDialog}
