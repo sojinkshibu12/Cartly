@@ -1,0 +1,10 @@
+/home/sojin-k-shibu/Desktop/projects/Cartly/Backend/productservice/src/main/java/com/Cartly/productservice/DTO/ProductRequest.java
+/home/sojin-k-shibu/Desktop/projects/Cartly/Backend/productservice/src/main/java/com/Cartly/productservice/DTO/ProductResponse.java
+/home/sojin-k-shibu/Desktop/projects/Cartly/Backend/productservice/src/main/java/com/Cartly/productservice/ProductserviceApplication.java
+/home/sojin-k-shibu/Desktop/projects/Cartly/Backend/productservice/src/main/java/com/Cartly/productservice/config/MinioConfig.java
+/home/sojin-k-shibu/Desktop/projects/Cartly/Backend/productservice/src/main/java/com/Cartly/productservice/controller/ProductController.java
+/home/sojin-k-shibu/Desktop/projects/Cartly/Backend/productservice/src/main/java/com/Cartly/productservice/model/Product.java
+/home/sojin-k-shibu/Desktop/projects/Cartly/Backend/productservice/src/main/java/com/Cartly/productservice/repo/ProductRepository.java
+/home/sojin-k-shibu/Desktop/projects/Cartly/Backend/productservice/src/main/java/com/Cartly/productservice/security/SecurityConfig.java
+/home/sojin-k-shibu/Desktop/projects/Cartly/Backend/productservice/src/main/java/com/Cartly/productservice/services/MinioService.java
+/home/sojin-k-shibu/Desktop/projects/Cartly/Backend/productservice/src/main/java/com/Cartly/productservice/services/ProductService.java

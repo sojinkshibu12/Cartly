@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: PRODUCTSERVICE
+  datasource:
+    url: jdbc:postgresql://localhost:5433/Cartly
+    username: username
+    password: password
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+server:
+  port: 8083
+minio:
+  url: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: cartlyminio
