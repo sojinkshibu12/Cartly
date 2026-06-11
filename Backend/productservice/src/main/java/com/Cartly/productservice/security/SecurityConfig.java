@@ -6,7 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
@@ -21,11 +21,14 @@ public class SecurityConfig {
 
     http
         .cors(cors -> cors.configurationSource(corsConfigurationSource))
-        .csrf(csrf -> csrf.disable())
+        .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
         .formLogin(form -> form.disable())
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-            .requestMatchers("/api/products/**").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
             .anyRequest().authenticated());
 
     return http.build();
