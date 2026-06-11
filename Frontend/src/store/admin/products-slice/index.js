@@ -14,10 +14,15 @@ export const addNewProduct = createAsyncThunk(
   "products/addNewProduct",
   async (formData) => {
     try {
+      const token = localStorage.getItem("token");
+
       const response = await axios.post(
         "http://localhost:8081/api/products",
         formData,
         {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           withCredentials: true,
         }
       );
@@ -32,7 +37,6 @@ export const addNewProduct = createAsyncThunk(
     }
   }
 );
-
 export const fetchAllProducts = createAsyncThunk(
   "/products/fetchAllProducts",
   async () => {

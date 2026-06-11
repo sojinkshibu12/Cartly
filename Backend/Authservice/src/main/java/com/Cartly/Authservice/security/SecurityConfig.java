@@ -43,7 +43,8 @@ public class SecurityConfig {
                 "/api/users/register",
                 "/api/users/login",
                 "/api/users/check-auth",
-                "/api/users/logout"))
+                "/api/users/logout",
+                "/api/users/me"))
         .formLogin(form -> form.disable())
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -53,7 +54,8 @@ public class SecurityConfig {
                 "/api/users/check-auth",
                 "/api/users/logout",
                 "/login",
-                "/error")
+                "/error",
+                "/api/users/me")
             .permitAll()
             .anyRequest().authenticated());
 

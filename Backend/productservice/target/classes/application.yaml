@@ -17,6 +17,9 @@ spring:
     multipart:
       max-file-size: 20MB
       max-request-size: 20MB
+logging:
+  level:
+    org.springframework.security: TRACE
 server:
   port: 8083
 minio:

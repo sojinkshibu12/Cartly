@@ -6,10 +6,11 @@ import com.Cartly.Authservice.model.UserRole;
 public record AuthResponse(
     boolean success,
     String message,
-    UserDto user) {
+    UserDto user,
+    String token) {
 
-  public static AuthResponse of(boolean success, String message, User user) {
-    return new AuthResponse(success, message, new UserDto(user.getId(), user.getName(), user.getRole()));
+  public static AuthResponse of(boolean success, String message, User user, String token) {
+    return new AuthResponse(success, message, new UserDto(user.getId(), user.getName(), user.getRole()), token);
   }
 
   public record UserDto(

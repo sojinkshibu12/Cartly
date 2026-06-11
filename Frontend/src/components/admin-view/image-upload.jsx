@@ -6,6 +6,11 @@ import { Button } from "../ui/button";
 import axios from "axios";
 import { Skeleton } from "../ui/skeleton";
 
+const token = localStorage.getItem("token");
+axios.defaults.withCredentials = true;
+axios.defaults.xsrfCookieName = "XSRF-TOKEN";
+axios.defaults.xsrfHeaderName = "X-XSRF-TOKEN";
+
 function ProductImageUpload({
   imageFile,
   setImageFile,
@@ -53,7 +58,14 @@ try {
   const response = await axios.post(
     "http://localhost:8081/api/products/upload",
     data,
-    { withCredentials: true }
+  {
+    headers:{
+      Authorization:`Bearer ${token}`
+    },
+    withCredentials: true,
+    xsrfCookieName: "XSRF-TOKEN",
+    xsrfHeaderName: "X-XSRF-TOKEN",
+  }
   );
 
     if (response?.data?.success) {

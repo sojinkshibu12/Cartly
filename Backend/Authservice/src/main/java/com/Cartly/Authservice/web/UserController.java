@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.Cartly.Authservice.model.User;
 import com.Cartly.Authservice.security.*;
-import com.Cartly.Authservice.services.UserService;
+import com.Cartly.Authservice.services.*;
 import com.Cartly.Authservice.web.dto.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -34,11 +34,13 @@ import org.springframework.web.server.ResponseStatusException;
 public class UserController {
 
   private final UserService userService;
+  private final JwtService jwtService;
   private final AuthenticationManager authenticationManager;
 
-  public UserController(UserService userService, AuthenticationManager authenticationManager) {
+  public UserController(UserService userService, AuthenticationManager authenticationManager, JwtService jwtService) {
     this.userService = userService;
     this.authenticationManager = authenticationManager;
+    this.jwtService = jwtService;
   }
 
   @GetMapping("/csrf")
@@ -53,7 +55,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.CREATED)
   public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
     User user = userService.register(request);
-    return AuthResponse.of(true, "Registration successful", user);
+    return AuthResponse.of(true, "Registration successful", user, null);
   }
 
   @PostMapping("/login")
@@ -77,13 +79,14 @@ public class UserController {
       Optional<User> optionalUser = principal.getUser();
       if (optionalUser.isPresent()) {
         User user = optionalUser.get();
-        return AuthResponse.of(true, "Login successful", user);
+        String token = jwtService.generateToken(user);
+        return AuthResponse.of(true, "Login successful", user, token);
       }
 
     } catch (org.springframework.security.core.AuthenticationException e) {
-      return new AuthResponse(false, "Invalid username or password", null);
+      return new AuthResponse(false, "Invalid username or password", null, null);
     }
-    return new AuthResponse(false, "Login failed", null);
+    return new AuthResponse(false, "Login failed", null, null);
   }
 
   @GetMapping("/admin/dashboard")
@@ -100,6 +103,12 @@ public class UserController {
     }
     User user = appUserPrincipal.getUser()
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authenticated"));
-    return AuthResponse.of(true, "Authenticated", user);
+    return AuthResponse.of(true, "Authenticated", user, null);
   }
+
+  @GetMapping("/me")
+  public Object me(Authentication authentication) {
+    return authentication.getAuthorities();
+  }
+
 }
