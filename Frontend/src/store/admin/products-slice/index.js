@@ -37,14 +37,16 @@ export const addNewProduct = createAsyncThunk(
     }
   }
 );
+
+
 export const fetchAllProducts = createAsyncThunk(
   "/products/fetchAllProducts",
   async () => {
     const result = await axios.get(
-      "http://localhost:8081/api/products"
+      `http://localhost:8081/api/products`
     );
 
-    return result?.data;
+    return result.data;
   }
 );
 

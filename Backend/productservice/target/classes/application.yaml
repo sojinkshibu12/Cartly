@@ -2,9 +2,9 @@ spring:
   application:
     name: PRODUCTSERVICE
   datasource:
-    url: jdbc:postgresql://localhost:5433/Cartly
-    username: username
-    password: password
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/Cartly}
+    username: ${SPRING_DATASOURCE_USERNAME:username}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
 
   jpa:
     open-in-view: false
@@ -21,9 +21,15 @@ logging:
   level:
     org.springframework.security: TRACE
 server:
-  port: 8083
+  port: ${SERVER_PORT:8083}
 minio:
-  url: http://localhost:9000
-  access-key: minioadmin
-  secret-key: minioadmin
-  bucket: cartlyminio
+  url: ${MINIO_URL:http://localhost:9000}
+  public-url: ${MINIO_PUBLIC_URL:${MINIO_URL:http://localhost:9000}}
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}
+  bucket: ${MINIO_BUCKET:cartlyminio}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka}

@@ -17,6 +17,7 @@ import { ArrowUpDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
+import {fetchProductDetails} from "../../store/shop/products-slice/index.js"
 
 
 
@@ -102,15 +103,18 @@ useEffect(() => {
     </div>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-      {productList?.length > 0 &&
-        productList.map((productItem) => (
-          <ShoppingProductTile
-            key={productItem._id || productItem.id}
-            handleGetProductDetails={handleGetProductDetails}
-            product={productItem}
-            handleAddtoCart={handleAddtoCart}
-          />
-        ))}
+{productList?.map((productItem) => {
+  console.log(productItem.id);
+
+  return (
+    <ShoppingProductTile
+      key={productItem.id}
+      handleGetProductDetails={handleGetProductDetails}
+      product={productItem}
+      handleAddtoCart={handleAddtoCart}
+    />
+  );
+})}
     </div>
   </div>
 

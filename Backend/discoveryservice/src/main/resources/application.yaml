@@ -2,9 +2,9 @@ spring:
   application:
     name: discoveryservice
 server:
-  port: 8761
+  port: ${SERVER_PORT:8761}
 
 eureka:
   client:
-    register-with-eureka: false # It doesn't need to register with itself
+    register-with-eureka: false
     fetch-registry: false

@@ -1,0 +1,10 @@
+.git
+.agents
+.codex
+**/target
+**/.idea
+**/.settings
+**/.project
+**/.classpath
+README*
+readme.md

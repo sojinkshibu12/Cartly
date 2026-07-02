@@ -1,15 +1,21 @@
 package com.Cartly.productservice.controller;
 
-import com.Cartly.productservice.DTO.*;
+import com.Cartly.productservice.DTO.ProductRequest;
+import com.Cartly.productservice.DTO.ProductResponse;
 import com.Cartly.productservice.model.Product;
-import com.Cartly.productservice.services.*;
-import lombok.RequiredArgsConstructor;
-
+import com.Cartly.productservice.services.MinioService;
+import com.Cartly.productservice.services.ProductService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.web.bind.annotation.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -21,14 +27,14 @@ public class ProductController {
   private final MinioService minioService;
 
   @PostMapping
-  public ProductResponse createProduct(
-      @RequestBody ProductRequest request) throws Exception {
+  public ProductResponse createProduct(@RequestBody ProductRequest request) throws Exception {
 
     System.out.println("CREATE PRODUCT HIT");
     Product product = productService.createProduct(request);
 
     return ProductResponse.builder()
-
+        .id(product.getId())
+        .legacyId(product.getId())
         .title(product.getTitle())
         .category(product.getCategory())
         .brand(product.getBrand())
@@ -36,12 +42,12 @@ public class ProductController {
         .salePrice(product.getSalePrice())
         .totalStock(product.getTotalStock())
         .image(product.getImage())
+        .description(product.getDescription())
         .build();
   }
 
   @PostMapping("/upload")
-  public Map<String, Object> uploadImage(
-      @RequestPart("image") MultipartFile image) throws Exception {
+  public Map<String, Object> uploadImage(@RequestPart("image") MultipartFile image) throws Exception {
     System.out.println("UPLOAD HIT");
 
     String objectName = minioService.upload(image);
@@ -59,4 +65,10 @@ public class ProductController {
     return products;
   }
 
+  @GetMapping("/{id}")
+  public Map<String, Object> fetchProductDetails(@PathVariable String id) {
+    return Map.of(
+        "success", true,
+        "data", productService.fetchById(id));
+  }
 }

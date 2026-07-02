@@ -1,7 +1,8 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: fullstack-db
+    container_name: cartly-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_DB: Cartly
       POSTGRES_USER: username
@@ -11,14 +12,16 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U youtube_user -d youtube_clone"]
+      test: ["CMD-SHELL", "pg_isready -U username -d Cartly"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 10s
 
   minio:
-    image: quay.io/minio/minio
-    container_name: cartly
+    image: quay.io/minio/minio:latest
+    container_name: cartly-minio
+    restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: minioadmin
@@ -30,30 +33,120 @@ services:
       - minio_data:/data
 
   minio-setup:
-    image: quay.io/minio/mc
-    container_name: cartlyminio
+    image: quay.io/minio/mc:latest
+    container_name: cartly-minio-setup
     depends_on:
-      - minio
-    entrypoint: >
-      /bin/sh -c "
-      until mc alias set local http://minio:9000 minioadmin minioadmin; do
-        sleep 2;
-      done;
-      mc mb -p local/cartlyminio|| true;
-      mc anonymous set download local/cartlyminio|| true;
-      cat <<'EOF' > /tmp/cors.json
-      [
-        {
-          \"AllowedOrigins\": [\"http://localhost:5173\"],
-          \"AllowedMethods\": [\"GET\", \"PUT\"],
-          \"AllowedHeaders\": [\"*\"],
-          \"ExposeHeaders\": [\"ETag\"],
-          \"MaxAgeSeconds\": 3000
-        }
-      ]
-      EOF
-      mc cors set local/cartlyminio /tmp/cors.json;
-      "
+      minio:
+        condition: service_started
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        until mc alias set local http://minio:9000 minioadmin minioadmin; do
+          sleep 2
+        done
+        mc mb -p local/cartlyminio || true
+        mc anonymous set download local/cartlyminio || true
+    restart: "no"
+
+  discoveryservice:
+    build:
+      context: ./discoveryservice
+      dockerfile: Dockerfile
+    container_name: cartly-discoveryservice
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8761
+    ports:
+      - "8761:8761"
+
+  authservice:
+    build:
+      context: ./Authservice
+      dockerfile: Dockerfile
+    container_name: cartly-authservice
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discoveryservice:
+        condition: service_started
+    environment:
+      SERVER_PORT: 8082
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/Cartly
+      SPRING_DATASOURCE_USERNAME: username
+      SPRING_DATASOURCE_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discoveryservice:8761/eureka
+    ports:
+      - "8082:8082"
+
+  productservice:
+    build:
+      context: ./productservice
+      dockerfile: Dockerfile
+    container_name: cartly-productservice
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discoveryservice:
+        condition: service_started
+      minio-setup:
+        condition: service_completed_successfully
+    environment:
+      SERVER_PORT: 8083
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/Cartly
+      SPRING_DATASOURCE_USERNAME: username
+      SPRING_DATASOURCE_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discoveryservice:8761/eureka
+      MINIO_URL: http://minio:9000
+      MINIO_PUBLIC_URL: http://localhost:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: cartlyminio
+    ports:
+      - "8083:8083"
+
+  cartservice:
+    build:
+      context: ./cartservice
+      dockerfile: Dockerfile
+    container_name: cartly-cartservice
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discoveryservice:
+        condition: service_started
+    environment:
+      SERVER_PORT: 8084
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/Cartly
+      SPRING_DATASOURCE_USERNAME: username
+      SPRING_DATASOURCE_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discoveryservice:8761/eureka
+    ports:
+      - "8084:8084"
+
+  apigateway:
+    build:
+      context: ./apigateway
+      dockerfile: Dockerfile
+    container_name: cartly-apigateway
+    restart: unless-stopped
+    depends_on:
+      discoveryservice:
+        condition: service_started
+      authservice:
+        condition: service_started
+      productservice:
+        condition: service_started
+      cartservice:
+        condition: service_started
+    environment:
+      SERVER_PORT: 8081
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discoveryservice:8761/eureka
+    ports:
+      - "8081:8081"
 
 volumes:
   postgres_data:

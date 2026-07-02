@@ -17,6 +17,9 @@ public class MinioService {
   @Value("${minio.bucket}")
   private String bucketName;
 
+  @Value("${minio.public-url:${minio.url}}")
+  private String publicUrl;
+
   public String upload(MultipartFile file) throws Exception {
 
     String objectName = UUID.randomUUID() + "-" + file.getOriginalFilename();
@@ -36,9 +39,9 @@ public class MinioService {
   }
 
   public String getImageUrl(String objectName) {
-
     return String.format(
-        "http://localhost:9000/%s/%s",
+        "%s/%s/%s",
+        publicUrl.replaceAll("/$", ""),
         bucketName,
         objectName);
   }

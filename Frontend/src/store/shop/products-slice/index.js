@@ -31,7 +31,7 @@ export const fetchProductDetails = createAsyncThunk(
   "/products/fetchProductDetails",
   async (id) => {
     const result = await axios.get(
-      `http://localhost:5000/api/shop/products/get/${id}`
+      `http://localhost:8081/api/products/${id}`
     );
 
     return result?.data;
@@ -39,7 +39,7 @@ export const fetchProductDetails = createAsyncThunk(
 );
 
 const shoppingProductSlice = createSlice({
-  name: "shoppingProducts",
+  name: "adminProducts",
   initialState,
   reducers: {
     setProductDetails: (state) => {
