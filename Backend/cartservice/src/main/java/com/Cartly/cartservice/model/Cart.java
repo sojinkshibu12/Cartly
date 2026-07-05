@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.persistence.OrderBy;
+
 @Entity
 @Table(name = "carts")
 @Getter
@@ -32,6 +34,7 @@ public class Cart {
   private CartStatus status = CartStatus.ACTIVE;
 
   @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @OrderBy("createdAt ASC")
   @Builder.Default
   private List<CartItem> items = new ArrayList<>();
 

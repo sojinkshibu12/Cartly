@@ -9,5 +9,6 @@ public record CartItemResponse(
     String image,
     Double price,
     Double salePrice,
-    int quantity) {
+    int quantity,
+    Integer totalStock) {
 }

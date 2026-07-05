@@ -6,38 +6,31 @@ import { useToast } from "../ui/use-toast";
 
 function UserCartItemsContent({ cartItem }) {
   const { user } = useSelector((state) => state.auth);
-  const { cartItems } = useSelector((state) => state.shopCart);
-  const { productList } = useSelector((state) => state.shopProducts);
   const dispatch = useDispatch();
   const { toast } = useToast();
 
   function handleUpdateQuantity(getCartItem, typeOfAction) {
-    if (typeOfAction == "plus") {
-      let getCartItems = cartItems.items || [];
+    const nextQuantity =
+      typeOfAction === "plus"
+        ? getCartItem?.quantity + 1
+        : getCartItem?.quantity - 1;
 
-      if (getCartItems.length) {
-        const indexOfCurrentCartItem = getCartItems.findIndex(
-          (item) => item.productId === getCartItem?.productId
-        );
+    if (nextQuantity < 1) {
+      return;
+    }
 
-        const getCurrentProductIndex = productList.findIndex(
-          (product) => product._id === getCartItem?.productId
-        );
-        const getTotalStock = productList[getCurrentProductIndex].totalStock;
+    if (typeOfAction === "plus") {
+      const totalStock = getCartItem?.totalStock;
 
-        console.log(getCurrentProductIndex, getTotalStock, "getTotalStock");
-
-        if (indexOfCurrentCartItem > -1) {
-          const getQuantity = getCartItems[indexOfCurrentCartItem].quantity;
-          if (getQuantity + 1 > getTotalStock) {
-            toast({
-              title: `Only ${getQuantity} quantity can be added for this item`,
-              variant: "destructive",
-            });
-
-            return;
-          }
-        }
+      if (
+        typeof totalStock === "number" &&
+        nextQuantity > totalStock
+      ) {
+        toast({
+          title: `Only ${totalStock} quantity can be added for this item`,
+          variant: "destructive",
+        });
+        return;
       }
     }
 
@@ -45,10 +38,7 @@ function UserCartItemsContent({ cartItem }) {
       updateCartQuantity({
         userId: user?.id,
         productId: getCartItem?.productId,
-        quantity:
-          typeOfAction === "plus"
-            ? getCartItem?.quantity + 1
-            : getCartItem?.quantity - 1,
+        quantity: nextQuantity,
       })
     ).then((data) => {
       if (data?.payload?.success) {

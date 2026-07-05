@@ -93,9 +93,14 @@ public class CartService {
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
   }
 
+  private static final int MAX_QUANTITY = 99;
+
   private void validateRequestedQuantity(int quantity, Integer totalStock) {
     if (totalStock != null && quantity > totalStock) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Requested quantity exceeds stock");
+    }
+    if (quantity > MAX_QUANTITY) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum quantity per item is " + MAX_QUANTITY);
     }
   }
 
@@ -124,6 +129,8 @@ public class CartService {
           String image = product != null ? product.getImage() : null;
           String title = product != null ? product.getTitle() : item.getProductName();
 
+          Integer stock = product != null ? product.getTotalStock() : null;
+
           return CartItemResponse.builder()
               .productId(item.getProductId())
               .title(title)
@@ -131,6 +138,7 @@ public class CartService {
               .price(item.getPrice().doubleValue())
               .salePrice(salePrice)
               .quantity(item.getQuantity())
+              .totalStock(stock)
               .build();
         })
         .toList();
